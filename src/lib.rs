@@ -1,6 +1,28 @@
 //! Iterator for lazily producing references to elements of
 //! a data structure in shuffled order. This consumes random
 //! numbers only as elements are produced.
+//!
+//! # Examples
+//!
+//! Sample random integers from a collection.
+//! 
+//! ```
+//! use shuffled::Shuffled;
+//! 
+//! let range: Vec<u64> = (0..100).collect();
+//! let sampler = &mut range.as_slice().shuffled();
+//! // Can use `cloned()` to dereference here if desired.
+//! let samples: Vec<&u64> = sampler.take(5).collect();
+//! let nsamples = samples.len();
+//! assert_eq!(5, nsamples);
+//! for i in 0..nsamples {
+//!     for j in i+1..nsamples {
+//!         assert!(samples[i] != samples[j]);
+//!     }
+//! }
+//! assert_eq!(95, sampler.count());
+//! ```
+
 
 use rand::{rngs::ThreadRng, Rng};
 
