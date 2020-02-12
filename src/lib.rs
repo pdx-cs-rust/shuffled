@@ -1,23 +1,26 @@
 use rand::{rngs::ThreadRng, Rng};
 
-pub struct Shuffled<'a, T, R: Rng> {
+pub struct ShuffledIter<'a, T, R: Rng> {
     rng: R,
     state: Vec<&'a T>,
 }
 
-pub trait ExtSliceShuffled<'a, T: 'a, R: Rng> {
-    fn shuffled(&'a self) -> Shuffled<'a, T, R>;
-}
+pub trait Shuffled<'a, T: 'a> {
+    fn shuffled_by<R: Rng>(&'a self, rng: R) -> ShuffledIter<'a, T, R>;
 
-impl<'a, T: 'a> ExtSliceShuffled<'a, T, ThreadRng> for [T] {
-    fn shuffled(&'a self) -> Shuffled<'a, T, ThreadRng> {
-        let rng = rand::thread_rng();
-        let state: Vec<&'a T> = self.iter().collect();
-        Shuffled { rng, state }
+    fn shuffled(&'a self) -> ShuffledIter<'a, T, ThreadRng> {
+        self.shuffled_by(rand::thread_rng())
     }
 }
 
-impl<'a, T: 'a, R: Rng> Iterator for Shuffled<'a, T, R> {
+impl<'a, T: 'a> Shuffled<'a, T> for [T] {
+    fn shuffled_by<R: Rng>(&'a self, rng: R) -> ShuffledIter<'a, T, R> {
+        let state: Vec<&'a T> = self.iter().collect();
+        ShuffledIter { rng, state }
+    }
+}
+
+impl<'a, T: 'a, R: Rng> Iterator for ShuffledIter<'a, T, R> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
