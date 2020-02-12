@@ -73,4 +73,22 @@ impl<'a, T: 'a, R: Rng> Iterator for ShuffledIter<'a, T, R> {
             Some(last)
         }
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.state.len(), Some(self.state.len()))
+    }
+
+    fn count(mut self) -> usize {
+        let result = self.state.len();
+        self.state.clear();
+        result
+    }
+
+    // The first shall be last, and the last shall also be
+    // last.
+    fn last(mut self) -> Option<Self::Item> {
+        let result = self.next()?;
+        self.state.clear();
+        Some(result)
+    }
 }
